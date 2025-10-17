@@ -1,0 +1,58 @@
+.task {
+  border: 1px solid #e6e6e6;
+  border-radius: 6px;
+  padding: 8px;
+  margin: 8px 0;
+  background: #fff;
+  transition: box-shadow 160ms ease, transform 160ms ease;
+  cursor: pointer;
+}
+
+.task:hover {
+  box-shadow: 0 4px 12px rgba(16, 24, 40, 0.06);
+  transform: translateY(-2px);
+}
+
+.task-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.task-name {
+  flex: 1 1 auto;
+  font-weight: 600;
+  color: #111827;
+}
+
+.task-status {
+  flex: 0 0 160px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+  background: #f9fafb;
+}
+
+.task-toggle {
+  border: none;
+  background: transparent;
+  padding: 6px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.task-details {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px dashed #eef2f7;
+  color: #374151;
+}
+
+.task-description.muted {
+  color: #9ca3af;
+  font-style: italic;
+}
+
+.task.expanded .task-toggle {
+  transform: rotate(180deg);
+}
