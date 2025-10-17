@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Task } from './Task';
+import { Calendar } from './Calendar';
 import './TaskList.css';
 
 const STORAGE_KEY = 'task-master.tasks.v1';
@@ -20,6 +21,9 @@ export function TaskList() {
   const [nextId, setNextId] = useState(() => (tasks.length ? Math.max(...tasks.map(t => t.id)) + 1 : 1));
   const [newName, setNewName] = useState('');
   const [newDetails, setNewDetails] = useState('');
+  const [newStart, setNewStart] = useState('');
+  const [newDue, setNewDue] = useState('');
+  const [showCalendar, setShowCalendar] = useState(false);
   const dragIdRef = useRef(null);
 
   useEffect(() => {
@@ -45,11 +49,13 @@ export function TaskList() {
   function handleAdd(e) {
     e.preventDefault();
     if (!newName.trim()) return;
-    const t = { id: nextId, name: newName.trim(), status: 'todo', details: newDetails };
+    const t = { id: nextId, name: newName.trim(), status: 'todo', details: newDetails, startDate: newStart || '', dueDate: newDue || '' };
     setTasks((s) => [t, ...s]);
     setNextId((n) => n + 1);
     setNewName('');
     setNewDetails('');
+    setNewStart('');
+    setNewDue('');
   }
 
   // Drag & drop handlers
@@ -93,10 +99,14 @@ export function TaskList() {
       <form className="task-add" onSubmit={handleAdd}>
         <input value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="New task name" />
         <input value={newDetails} onChange={(e) => setNewDetails(e.target.value)} placeholder="Details (optional)" />
+        <input type="date" value={newStart} onChange={(e) => setNewStart(e.target.value)} title="Start date (optional)" />
+        <input type="date" value={newDue} onChange={(e) => setNewDue(e.target.value)} title="Due date (optional)" />
         <button type="submit">Add</button>
+        <button type="button" onClick={() => setShowCalendar(s => !s)}>{showCalendar ? 'Hide Calendar' : 'Show Calendar'}</button>
       </form>
 
       <div className="task-list-items">
+        {showCalendar && <div style={{ marginBottom: 12 }}><Calendar tasks={tasks} /></div>}
         {tasks.length === 0 && <div className="empty">No tasks yet — add one above.</div>}
         {tasks.map((t) => (
           <Task

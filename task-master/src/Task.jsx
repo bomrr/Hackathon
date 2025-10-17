@@ -6,13 +6,15 @@ import "./Task.css";
 // onDelete(id)
 // onUpdate(id, { name, details, status })
 // onDrop(event, targetId) - called when a drop happens on this task
-export function Task({ id, name: initialName = "", status: initialStatus = "todo", details = "", onStatusChange, onDelete, onUpdate, onDrop }) {
+export function Task({ id, name: initialName = "", status: initialStatus = "todo", details = "", startDate = "", dueDate = "", onStatusChange, onDelete, onUpdate, onDrop, onDragStart, onDragEnd }) {
     const [expanded, setExpanded] = useState(false);
     const [status, setStatus] = useState(initialStatus);
     const [name] = useState(initialName);
     const [editing, setEditing] = useState(false);
     const [editName, setEditName] = useState(initialName);
     const [editDetails, setEditDetails] = useState(details);
+    const [editStart, setEditStart] = useState(startDate || "");
+    const [editDue, setEditDue] = useState(dueDate || "");
     const nameRef = useRef(null);
 
     const statuses = [
@@ -44,7 +46,7 @@ export function Task({ id, name: initialName = "", status: initialStatus = "todo
 
     function handleSave() {
         if (typeof onUpdate === 'function') {
-            onUpdate(id, { name: editName, details: editDetails, status });
+            onUpdate(id, { name: editName, details: editDetails, status, startDate: editStart, dueDate: editDue });
         }
         setEditing(false);
     }
@@ -108,6 +110,7 @@ export function Task({ id, name: initialName = "", status: initialStatus = "todo
                 <button className="task-drag-handle" aria-label="Drag to reorder" draggable onDragStart={handleDragStart} onDragEnd={handleDragEnd}>≡</button>
 
                 <div className="task-name">{name || "Untitled"}</div>
+                {dueDate ? <div className="task-due">Due: {dueDate}</div> : null}
 
                 <select
                     className="task-status"
@@ -161,6 +164,10 @@ export function Task({ id, name: initialName = "", status: initialStatus = "todo
                                 <div className="task-edit">
                                     <input ref={nameRef} value={editName} onChange={(e) => setEditName(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleSave(); } if (e.key === 'Escape') { setEditing(false); } }} />
                                     <textarea value={editDetails} onChange={(e) => setEditDetails(e.target.value)} onKeyDown={(e) => { if (e.key === 'Escape') { setEditing(false); } if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); handleSave(); } }} placeholder="Details (Ctrl+Enter to save)" />
+                                    <div className="task-dates">
+                                        <label>Start: <input type="date" value={editStart} onChange={(e) => setEditStart(e.target.value)} /></label>
+                                        <label>Due: <input type="date" value={editDue} onChange={(e) => setEditDue(e.target.value)} /></label>
+                                    </div>
                                     <div className="task-edit-actions">
                                         <button onClick={handleSave}>Save</button>
                                         <button onClick={() => setEditing(false)}>Cancel</button>

@@ -1,7 +1,8 @@
 .task-list { padding: 16px; }
 
-.task-add { display: flex; gap: 8px; margin-bottom: 12px; }
-.task-add input { padding: 8px; border-radius: 6px; border: 1px solid #d1d5db; flex: 1 1 auto; }
+.task-add { display: flex; gap: 8px; margin-bottom: 12px; align-items: center; }
+.task-add input[type="text"], .task-add input[type="date"] { padding: 8px; border-radius: 6px; border: 1px solid #d1d5db; }
+.task-add input[type="text"] { flex: 1 1 auto; }
 .task-add button { padding: 8px 12px; border-radius: 6px; border: none; background: #2563eb; color: white; cursor: pointer; }
 
 .task-list-items { display: flex; flex-direction: column; }
