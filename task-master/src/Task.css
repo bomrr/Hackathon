@@ -19,6 +19,14 @@
   gap: 8px;
 }
 
+.task-drag-handle {
+  background: transparent;
+  border: none;
+  cursor: grab;
+  font-size: 18px;
+  padding: 4px 6px;
+}
+
 .task-name {
   flex: 1 1 auto;
   font-weight: 600;
@@ -48,6 +56,22 @@
   color: #374151;
 }
 
+.task-edit {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.task-edit input,
+.task-edit textarea {
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+  width: 100%;
+  box-sizing: border-box;
+}
+
 .task-description.muted {
   color: #9ca3af;
   font-style: italic;
@@ -55,4 +79,15 @@
 
 .task.expanded .task-toggle {
   transform: rotate(180deg);
+}
+
+.task.dragging {
+  opacity: 0.6;
+  transform: scale(0.98);
+  box-shadow: 0 8px 20px rgba(16,24,40,0.08);
+}
+
+.task.drag-over {
+  border-color: #93c5fd;
+  box-shadow: inset 0 0 0 2px rgba(59,130,246,0.06);
 }
