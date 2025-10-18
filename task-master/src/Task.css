@@ -55,6 +55,16 @@
   font-size: 16px;
 }
 
+/* Status color indicators */
+.task.status-done { border-left: 6px solid #16a34a; }
+.task.status-in-progress { border-left: 6px solid #f59e0b; }
+.task.status-todo { border-left: 6px solid transparent; }
+
+.task-estimated { background: #f3f4f6; padding: 4px 8px; border-radius: 6px; font-size: 13px; color: #374151; }
+
+.task-name input { width: 100%; padding: 6px; border-radius: 6px; border: 1px solid #d1d5db; }
+.task-estimated { cursor: pointer; }
+
 .task-details {
   margin-top: 8px;
   padding-top: 8px;
@@ -97,3 +107,18 @@
   border-color: #93c5fd;
   box-shadow: inset 0 0 0 2px rgba(59,130,246,0.06);
 }
+
+/* Timer bottom window (used by TaskList) */
+.time-manager {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #ffffff;
+  border-top: 1px solid #e6e6e6;
+  padding: 12px;
+  box-shadow: 0 -6px 20px rgba(16,24,40,0.06);
+}
+
+.time-manager .tm-header { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+

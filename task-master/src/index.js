@@ -16,7 +16,7 @@ function App() {
     <div>
       <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
-      <div style={{ marginLeft: sidebarOpen ? 280 : 0, transition: 'margin-left 200ms ease', background: bgColor, minHeight: '100vh' }}>
+  <div style={{ marginLeft: sidebarOpen ? 280 : 0, transition: 'margin-left 200ms ease', background: bgColor, minHeight: '100vh', position: 'relative', zIndex: 30 }}>
         <header style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: 12, borderBottom: '1px solid #eef2f7' }}>
           <div>
             <button onClick={() => setSidebarOpen(true)} style={{ padding: 8, borderRadius: 6 }}>☰ Open AI</button>

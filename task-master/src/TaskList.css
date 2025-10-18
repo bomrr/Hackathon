@@ -7,3 +7,37 @@
 
 .task-list-items { display: flex; flex-direction: column; }
 .empty { color: #6b7280; font-style: italic; }
+
+.task-add input[type="number"] { width: 80px; }
+
+/* make space at bottom when time-manager is present */
+.task-list { padding-bottom: 140px; }
+
+.timer-fab {
+	position: fixed;
+	right: 18px;
+	bottom: 18px;
+	background: #2563eb;
+	color: white;
+	border: none;
+	padding: 12px 16px;
+	border-radius: 999px;
+	box-shadow: 0 6px 18px rgba(37,99,235,0.18);
+	cursor: pointer;
+}
+.timer-fab:active { transform: translateY(1px); }
+
+/* Analytics toggle FAB */
+.analytics-fab {
+  position: fixed;
+  right: 18px;
+  bottom: 70px; /* stacked above timer */
+  background: #111827;
+  color: #fff;
+  border: none;
+  padding: 12px 16px;
+  border-radius: 999px;
+  box-shadow: 0 6px 18px rgba(17,24,39,0.18);
+  cursor: pointer;
+}
+.analytics-fab:active { transform: translateY(1px); }
