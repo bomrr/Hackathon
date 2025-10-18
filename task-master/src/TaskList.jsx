@@ -7,6 +7,20 @@ import './TaskList.css';
 
 const STORAGE_KEY = 'task-master.tasks.v1';
 
+function todayISO() {
+  const d = new Date();
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  return `${d.getFullYear()}-${mm}-${dd}`;
+}
+function addDaysISO(n) {
+  const d = new Date();
+  d.setDate(d.getDate() + n);
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  return `${d.getFullYear()}-${mm}-${dd}`;
+}
+
 export function TaskList() {
   const [tasks, setTasks] = useState(() => {
     try {
@@ -21,12 +35,17 @@ export function TaskList() {
     return max + 1;
   });
 
+  // --- Add form state ---
   const [newName, setNewName] = useState('');
   const [newDetails, setNewDetails] = useState('');
   const [newStart, setNewStart] = useState('');
   const [newDue, setNewDue] = useState('');
   const [newEst, setNewEst] = useState(0);
+  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [nameError, setNameError] = useState(false);
+  const nameRef = useRef(null);
 
+  // --- Other UI state ---
   const [showCalendar, setShowCalendar] = useState(false);
   const [search, setSearch] = useState('');
   const [sortBy, setSortBy] = useState('default');
@@ -39,7 +58,7 @@ export function TaskList() {
 
   // Dynamic bottom padding so page content isn't hidden behind the open panel.
   const timePanelRef = useRef(null);
-  const [panelHeight, setPanelHeight] = useState(0);
+  const [panelHeight, setPanelHeight] = useState(24);
 
   useEffect(() => {
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks)); } catch {}
@@ -84,9 +103,20 @@ export function TaskList() {
     } : x));
   }
 
+  function quickDue(kind) {
+    if (kind === 'today') setNewDue(todayISO());
+    if (kind === 'tomorrow') setNewDue(addDaysISO(1));
+    if (kind === 'next7') setNewDue(addDaysISO(7));
+    setShowAdvanced(true);
+  }
+
   function handleAdd(e) {
-    e.preventDefault();
-    if (!newName.trim()) return;
+    e && e.preventDefault();
+    if (!newName.trim()) {
+      setNameError(true);
+      if (nameRef.current) nameRef.current.focus();
+      return;
+    }
     const t = {
       id: nextId,
       name: newName.trim(),
@@ -99,7 +129,11 @@ export function TaskList() {
     };
     setTasks(s => [t, ...s]);
     setNextId(n => n + 1);
+
+    // reset fields but keep advanced panel open if it was open
     setNewName(''); setNewDetails(''); setNewStart(''); setNewDue(''); setNewEst(0);
+    setNameError(false);
+    if (nameRef.current) nameRef.current.focus();
   }
 
   function handleSelectActive(id) { setActiveTaskId(id); setShowTimer(true); }
@@ -159,18 +193,94 @@ export function TaskList() {
       className="task-list"
       style={{ paddingBottom: showTimer ? panelHeight : 24 }}
     >
-      <form className="task-add" onSubmit={handleAdd}>
-        <input value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="New task name" />
-        <input value={newDetails} onChange={(e) => setNewDetails(e.target.value)} placeholder="Details (optional)" />
-        <input type="date" value={newStart} onChange={(e) => setNewStart(e.target.value)} title="Start date (optional)" />
-        <input type="date" value={newDue} onChange={(e) => setNewDue(e.target.value)} title="Due date (optional)" />
-        <input type="number" min="0" value={newEst} onChange={(e) => setNewEst(e.target.value)} title="Estimated minutes" placeholder="Est min" />
-        <button type="submit">Add</button>
-        <button type="button" onClick={() => setShowCalendar(s => !s)}>
-          {showCalendar ? 'Hide Calendar' : 'Show Calendar'}
-        </button>
+      {/* ---------- Add Task Card ---------- */}
+      <form className="add-card" onSubmit={handleAdd}>
+        <div className="add-row">
+          <div className={`add-name ${nameError ? 'error' : ''}`}>
+            <input
+              ref={nameRef}
+              value={newName}
+              onChange={(e) => { setNewName(e.target.value); if (nameError) setNameError(false); }}
+              placeholder="New task name"
+              aria-label="New task name"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !showAdvanced) handleAdd(e);
+              }}
+            />
+          </div>
+          <div className="add-actions">
+            <button type="button" className="btn-ghost" onClick={() => setShowAdvanced(s => !s)}>
+              {showAdvanced ? 'Hide' : 'Advanced ▾'}
+            </button>
+            <button type="submit" className="btn-primary">Add</button>
+          </div>
+        </div>
+
+        {showAdvanced && (
+          <div className="add-advanced">
+            <div>
+              <div className="field-label">Details</div>
+              <textarea
+                value={newDetails}
+                onChange={(e) => setNewDetails(e.target.value)}
+                placeholder="Details (optional). Tip: Ctrl/Cmd + Enter to add"
+                onKeyDown={(e) => {
+                  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') handleAdd(e);
+                }}
+              />
+            </div>
+
+            <div>
+              <div className="field-label">Start</div>
+              <input type="date" value={newStart} onChange={(e) => setNewStart(e.target.value)} />
+            </div>
+
+            <div>
+              <div className="field-label">Due</div>
+              <input type="date" value={newDue} onChange={(e) => setNewDue(e.target.value)} />
+            </div>
+
+            <div>
+              <div className="field-label">Estimated (min)</div>
+              <input
+                type="number"
+                min="0"
+                step="1"
+                value={newEst}
+                onChange={(e) => setNewEst(e.target.value)}
+                placeholder="0"
+              />
+            </div>
+
+            <div className="add-chips">
+              <button type="button" className="chip" onClick={() => quickDue('today')}>Due: Today</button>
+              <button type="button" className="chip" onClick={() => quickDue('tomorrow')}>Due: Tomorrow</button>
+              <button type="button" className="chip" onClick={() => quickDue('next7')}>Due: +1 week</button>
+            </div>
+          </div>
+        )}
       </form>
 
+      {/* Calendar toggle + search/sort */}
+      <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 12 }}>
+        <input
+          placeholder="Search tasks"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          style={{ flex: '1 1 auto', padding: 8, borderRadius: 6, border: '1px solid #d1d5db' }}
+        />
+        <button type="button" className="btn-ghost" onClick={() => setShowCalendar(s => !s)}>
+          {showCalendar ? 'Hide Calendar' : 'Show Calendar'}
+        </button>
+        <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} style={{ padding: 8, borderRadius: 6 }}>
+          <option value="default">Sort: Default</option>
+          <option value="completed">Sort: Completed</option>
+          <option value="due">Sort: Due date</option>
+          <option value="estimated">Sort: Estimated</option>
+        </select>
+      </div>
+
+      {/* Calendar */}
       {showCalendar && (
         <div style={{ marginBottom: 12 }}>
           <Calendar
@@ -183,23 +293,9 @@ export function TaskList() {
         </div>
       )}
 
-      <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 12 }}>
-        <input
-          placeholder="Search tasks"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          style={{ flex: '1 1 auto', padding: 8, borderRadius: 6, border: '1px solid #d1d5db' }}
-        />
-        <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} style={{ padding: 8, borderRadius: 6 }}>
-          <option value="default">Sort: Default</option>
-          <option value="completed">Sort: Completed</option>
-          <option value="due">Sort: Due date</option>
-          <option value="estimated">Sort: Estimated</option>
-        </select>
-      </div>
-
+      {/* Task lists */}
       <div className="task-list-items">
-        {activeTasks.length === 0 && completedTasks.length === 0 && (
+        {tasks.length === 0 && (
           <div className="empty">No tasks yet — add one above.</div>
         )}
 
@@ -251,7 +347,7 @@ export function TaskList() {
         <div className="tm-handle" />
         <div className="tm-header">
           <div className="tm-title">Time Manager</div>
-          <div><button onClick={() => setShowTimer(false)}>Close</button></div>
+          <div><button className="btn-ghost" onClick={() => setShowTimer(false)}>Close</button></div>
         </div>
 
         <div className="tm-controls-row">
