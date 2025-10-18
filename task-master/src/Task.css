@@ -29,7 +29,7 @@
 
 .task-name {
   flex: 1 1 auto;
-  font-weight: 600;
+  font-weight: 300;
   color: #111827;
 }
 
@@ -44,6 +44,7 @@
   border-radius: 6px;
   border: 1px solid #d1d5db;
   background: #f9fafb;
+  font-family: "Raleway", sans-serif;
 }
 
 .task-toggle {
