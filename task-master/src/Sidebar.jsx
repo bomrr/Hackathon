@@ -68,10 +68,10 @@ export function Sidebar({ open, onClose }) {
             onChange={e => setInput(e.target.value)}
             placeholder="Type your prompt..."
             disabled={loading}
-            style={{flex:1,padding:8,borderRadius:4,border:'1px solid #ccc'}}
+            style={{flex:1,padding:8,borderRadius:4,border:'1px solid #ccc', fontSize:'0.7rem'}}
             autoFocus
           />
-          <button type="submit" disabled={loading || !input.trim()} style={{padding:'8px 16px'}}>
+          <button type="submit" disabled={loading || !input.trim()} style={{padding:'8px 16px',fontSize:'0.7rem'}}>
             {loading ? '...' : 'Send'}
           </button>
         </form>

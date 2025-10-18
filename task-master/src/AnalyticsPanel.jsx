@@ -56,6 +56,54 @@ export function AnalyticsPanel({ tasks = [], open = false, onClose = () => {} })
     return { path, color:d.color, label:d.label, value:d.value };
   });
 
+  // --- Burndown calculation (last 7 days, inclusive) ---
+  const burndown = useMemo(() => {
+    const days = 7;
+    const msDay = 24 * 60 * 60 * 1000;
+    // initial total scope = sum of estimatedMinutes for all tasks
+    const initialTotal = tasks.reduce((s, t) => s + (Number(t.estimatedMinutes) || 0), 0);
+    // build date array from (today - (days-1)) to today
+    const start = new Date(today.getTime() - (days - 1) * msDay);
+    const labels = [];
+    const remaining = [];
+    for (let i = 0; i < days; i++) {
+      const day = new Date(start.getTime() + i * msDay);
+      labels.push(ymd(day));
+    }
+    // For each day, compute sum of estimates of tasks completed up to end of that day
+    const completedByDate = labels.map(ld => {
+      const dayEnd = new Date(ld + 'T23:59:59Z');
+      let sum = 0;
+      tasks.forEach(t => {
+        if (!t.completedAt) return;
+        const c = parseISO(t.completedAt);
+        if (!c) return;
+        if (c.getTime() <= dayEnd.getTime()) sum += (Number(t.estimatedMinutes) || 0);
+      });
+      return sum;
+    });
+    // remaining = initialTotal - cumulative completed
+    let cum = 0;
+    for (let i = 0; i < labels.length; i++) {
+      cum = completedByDate[i]; // completedByDate is already cumulative up to that day
+      const rem = Math.max(0, initialTotal - cum);
+      remaining.push(rem);
+    }
+    return { labels, remaining, initialTotal };
+  }, [tasks, today]);
+
+  // helper to generate SVG path points for line charts (normalized to viewBox)
+  function linePoints(values, max) {
+    const n = values.length;
+    if (n === 0) return '';
+    const pts = values.map((v, i) => {
+      const x = n === 1 ? 50 : (i / (n - 1)) * 100;
+      const y = 90 - (max ? (v / max) * 80 : 0); // invert to fit svg (leave top/bottom padding)
+      return `${x},${y}`;
+    });
+    return pts.join(' ');
+  }
+
   return (
     <aside className={'analytics improved' + (open ? ' open' : '')}>
       <div className="analytics__head">
@@ -107,6 +155,55 @@ export function AnalyticsPanel({ tasks = [], open = false, onClose = () => {} })
               </div>
             );
           })}
+        </div>
+      </div>
+
+      <div className="analytics__section">
+        <h4>Burndown (last 7 days)</h4>
+        <div className="burndown">
+          <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="burndown-svg" aria-hidden={false}>
+            {/* grid / axes (light) */}
+            <line x1="0" y1="90" x2="100" y2="90" stroke="#e5e7eb" strokeWidth="0.5" />
+            <line x1="0" y1="10" x2="100" y2="10" stroke="#e5e7eb" strokeWidth="0.5" />
+
+            {/* ideal straight line from initial to zero */}
+            {burndown.initialTotal > 0 ? (
+              <polyline
+                points={`0,10 100,90`}
+                fill="none"
+                stroke="rgba(99,102,241,0.65)"
+                strokeWidth="0.8"
+                strokeDasharray="2 2"
+              />
+            ) : null}
+
+            {/* actual burndown */}
+            {burndown.remaining.length ? (
+              <polyline
+                points={linePoints(burndown.remaining, Math.max(1, burndown.initialTotal))}
+                fill="none"
+                stroke="var(--todo, #3b82f6)"
+                strokeWidth="1.6"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            ) : null}
+          </svg>
+
+          <div className="burndown-meta">
+            <div className="burndown-legend">
+              <span className="dot" style={{background:'var(--todo, #3b82f6)'}} /> Actual
+              <span className="dot" style={{background:'rgba(99,102,241,0.65)'}} /> Ideal
+            </div>
+            <div className="burndown-labels">
+              {burndown.labels.map((l,i)=>(
+                <div key={l} className="burndown-label">{i===0?l:'·'}</div>
+              ))}
+            </div>
+            <div className="burndown-stats">
+              <small>Total scope: {burndown.initialTotal} min</small>
+            </div>
+          </div>
         </div>
       </div>
 
