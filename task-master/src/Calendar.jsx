@@ -68,10 +68,12 @@ export function Calendar({ tasks = [], onTaskClick = () => {} }) {
       let dtend = toIcsDate(ed);
 
       if (isDateOnly) {
-        // per RFC5545, DTEND is non-inclusive for all-day events; make dtend next day
-        const dt = new Date(sd + 'T00:00:00');
-        const next = new Date(dt.getTime() + 24 * 60 * 60 * 1000);
+        // per RFC5545, DTEND is non-inclusive for all-day events; make DTEND = day after dueDate
+        // Use the provided dueDate (ed). If dueDate is missing, ed will be startDate and we add one day.
+        const edDate = new Date(ed + 'T00:00:00');
+        const next = new Date(edDate.getTime() + 24 * 60 * 60 * 1000);
         dtend = next.toISOString().slice(0,10).replace(/-/g,'');
+        // dtstart remains the all-day start (YYYYMMDD)
       } else {
         // ensure dtend is in datetime format; if only one provided, set dtend = dtstart
         if (!dtend) dtend = dtstart;
