@@ -39,7 +39,7 @@ function App() {
             {/* AI panel button (unchanged) */}
             <button onClick={() => setSidebarOpen(true)} style={{ padding: '8px 10px', borderRadius: 10, border: '1px solid #e5e7eb', background: '#fff' }}>☰ Open AI</button>
           </div>
-          <h1 style={{ margin: 0, fontSize: 24, fontWeight: 700, color: 'var(--text-color)' }}>Task Manager</h1>
+          <h1 style={{ margin: 0, fontWeight: 700, color: 'var(--text-color)' }}>Task Master</h1>
           <div>
             {/* New theme button in the top-right */}
             <button onClick={() => setThemeOpen(true)} title="Theme & appearance" style={{ padding: '8px 10px', borderRadius: 10, border: '1px solid #e5e7eb', background: '#fff' }}>🎨</button>

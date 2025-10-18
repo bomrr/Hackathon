@@ -186,7 +186,7 @@
 .timer__modes { display:flex; gap:8px; }
 .tm-btn { padding:8px 12px; border-radius:10px; border:1px solid #e5e7eb; background:#fff; cursor:pointer; }
 .tm-btn:active{ transform:translateY(1px); }
-.timer__display { font-variant-numeric: tabular-nums; font-size:34px; text-align:center; margin:12px 0; letter-spacing:.02em; }
+.timer__display { font-variant-numeric: tabular-nums; font-size: 3rem; text-align:center; margin:12px 0; letter-spacing:.02em; }
 .timer__actions { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
 .tm-pill { padding:8px 12px; border-radius:999px; border:1px solid #e5e7eb; background:#fff; cursor:pointer; }
 .tm-primary { background:#1f2937; color:#fff; border-color:#1f2937; }

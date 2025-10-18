@@ -26,3 +26,11 @@
 .calendar .task-pill.status-done { background: rgba(34,197,94,0.18); border-color: rgba(34,197,94,0.45); color:#03543f; }
 
 .calendar .header { background: #f3f4f6; padding: 6px 8px; font-weight: 600; border-bottom: 1px solid #e5e7eb; }
+
+.calendar .button {
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  cursor: pointer;
+}

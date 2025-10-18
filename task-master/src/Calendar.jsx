@@ -122,7 +122,7 @@ export function Calendar({ tasks = [], onTaskClick = () => {} }) {
       <div className="header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>Calendar — {now.toLocaleString(undefined, { month: 'long', year: 'numeric' })}</div>
         <div>
-          <button onClick={exportIcs} style={{ marginLeft: 8 }}>Export .ics</button>
+          <button onClick={exportIcs} className="button" style={{ marginLeft: 8 }}>Export .ics</button>
         </div>
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)" }}>
@@ -135,7 +135,7 @@ export function Calendar({ tasks = [], onTaskClick = () => {} }) {
           const list = byDate[ymd] || [];
           return (
             <div key={ymd} className="day">
-              <div style={{ position:"absolute", top:4, right:6, fontSize:12, opacity:0.7 }}>{date.getDate()}</div>
+              <div style={{ position:"absolute", top:4, right:6, opacity:0.7 }}>{date.getDate()}</div>
               <div>
                 {list.map(t => (
                   <button

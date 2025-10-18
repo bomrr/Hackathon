@@ -17,7 +17,7 @@ body {
 }
 
 /* Make form controls and buttons inherit the page font (Raleway) */
-input, textarea, select, button { font-family: inherit; }
+input, textarea, select, button { font-family: inherit; font-size: var(--base-font-size);}
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
