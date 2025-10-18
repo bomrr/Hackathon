@@ -1,6 +1,28 @@
-.sidebar { position: fixed; left: 0; top: 0; bottom: 0; width: 280px; background: #f8fafc; border-right: 1px solid #e6eaf0; transform: translateX(-100%); transition: transform 200ms ease; padding: 12px; box-sizing: border-box; z-index: 40; }
+.sidebar { position: fixed; left: 0; top: 0; bottom: 0; width: 280px; background: #f8fafc; border-right: 1px solid #e6eaf0; transform: translateX(-100%); transition: transform 200ms ease; padding: 12px; box-sizing: border-box; z-index: 20; }
 .sidebar.open { transform: translateX(0); }
 .sidebar-header { display: flex; align-items: center; justify-content: space-between; }
-.sidebar-body { margin-top: 12px; }
+.sidebar-body {
+	margin-top: 12px;
+	display: flex;
+	flex-direction: column;
+	height: calc(100vh - 56px);
+	min-height: 0;
+}
+
+.chat-history {
+	flex: 1 1 auto;
+    
+	overflow-y: auto;
+	margin-bottom: 0;
+	min-height: 0;
+	max-height: 100%;
+}
+
+form {
+	display: flex;
+	gap: 8px;
+	margin-top: 8px;
+    margin-bottom : 50px;
+}
 .sidebar-actions button { display: block; width: 100%; margin-bottom: 8px; padding: 8px; border-radius: 6px; border: 1px solid #d1d5db; background: white; }
 .muted { color: #6b7280; font-size: 13px; }
