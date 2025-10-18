@@ -139,17 +139,36 @@ export function TaskList() {
   function handleSelectActive(id) { setActiveTaskId(id); setShowTimer(true); }
 
   // Search + sorting
-  const filtered = tasks.filter(t => {
-    if (!search) return true;
-    const s = search.toLowerCase();
-    return (t.name && t.name.toLowerCase().includes(s)) || (t.details && t.details.toLowerCase().includes(s));
-  });
+  function matchesSearch(task, query) {
+    if (!query) return true;
+    const s = query.toLowerCase().trim();
+    // status:todo or s:todo
+    const statusMatch = s.match(/^(?:status|s):\s*(\w+)$/);
+    if (statusMatch) {
+      return (task.status || '').toLowerCase().startsWith(statusMatch[1]);
+    }
+    // date tokens: due:YYYY-MM-DD or start:YYYY-MM-DD
+    const dateMatch = s.match(/^(?:due|start):\s*(\d{4}-\d{2}-\d{2})$/);
+    if (dateMatch) {
+      const field = s.startsWith('due:') ? 'dueDate' : 'startDate';
+      return (task[field] || '') === dateMatch[1];
+    }
+    // generic search across name, details, status, start/due date
+    return (
+      (task.name || '').toLowerCase().includes(s) ||
+      (task.details || '').toLowerCase().includes(s) ||
+      (task.status || '').toLowerCase().includes(s) ||
+      (task.dueDate || '').toLowerCase().includes(s) ||
+      (task.startDate || '').toLowerCase().includes(s)
+    );
+  }
+
+  const filtered = tasks.filter(t => matchesSearch(t, search));
+  const filteredCount = filtered.length;
 
   function sortTasks(arr) {
     const copy = [...arr];
-    if (sortBy === 'completed') {
-      copy.sort((a,b) => new Date(b.completedAt || 0) - new Date(a.completedAt || 0));
-    } else if (sortBy === 'due') {
+    if (sortBy === 'due') {
       copy.sort((a,b) => {
         if (!a.dueDate && !b.dueDate) return 0;
         if (!a.dueDate) return 1;
@@ -264,17 +283,21 @@ export function TaskList() {
       {/* Calendar toggle + search/sort */}
       <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 12 }}>
         <input
-          placeholder="Search tasks"
+          placeholder="Search tasks (name, details, status:, due:, start:)"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
+          onKeyDown={(e) => { if (e.key === 'Escape') setSearch(''); }}
           style={{ flex: '1 1 auto', padding: 8, borderRadius: 6, border: '1px solid #d1d5db' }}
         />
+        <button type="button" className="btn-ghost" onClick={() => setSearch('')}>Clear</button>
+        {search.trim() !== '' && (
+          <div style={{ color: '#6b7280', fontSize: 13 }}>{filteredCount} result{filteredCount === 1 ? '' : 's'}</div>
+        )}
         <button type="button" className="btn-ghost" onClick={() => setShowCalendar(s => !s)}>
           {showCalendar ? 'Hide Calendar' : 'Show Calendar'}
         </button>
         <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} style={{ padding: 8, borderRadius: 6 }}>
           <option value="default">Sort: Default</option>
-          <option value="completed">Sort: Completed</option>
           <option value="due">Sort: Due date</option>
           <option value="estimated">Sort: Estimated</option>
         </select>
