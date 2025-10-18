@@ -135,7 +135,7 @@ export function Calendar({ tasks = [], onTaskClick = () => {} }) {
           const list = byDate[ymd] || [];
           return (
             <div key={ymd} className="day">
-              <div style={{ position:"absolute", top:4, right:6, fontSize:12, opacity:0.7 }}>{date.getDate()}</div>
+              <div style={{ position:"absolute", top:4, right:6, opacity:0.7 }}>{date.getDate()}</div>
               <div>
                 {list.map(t => (
                   <button
