@@ -19,7 +19,7 @@ function daysInMonth(date) {
   return d.getDate();
 }
 
-export function Calendar({ tasks = [] }) {
+export function Calendar({ tasks = [], onTaskClick }) {
   const [cursor, setCursor] = useState(() => startOfMonth(new Date()));
 
   const year = cursor.getFullYear();
@@ -76,7 +76,7 @@ export function Calendar({ tasks = [] }) {
               <div key={ci} className={"calendar-cell" + (cell.tasks.length ? ' has-tasks' : '')}>
                 {cell.day && <div className="calendar-day">{cell.day}</div>}
                 {cell.tasks && cell.tasks.map(t => (
-                  <div key={t.id} className="calendar-task">{t.name}</div>
+                  <button key={t.id} className="calendar-task" onClick={() => onTaskClick && onTaskClick(t.id)}>{t.name}</button>
                 ))}
               </div>
             ))}

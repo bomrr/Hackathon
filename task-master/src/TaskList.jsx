@@ -106,7 +106,14 @@ export function TaskList() {
       </form>
 
       <div className="task-list-items">
-        {showCalendar && <div style={{ marginBottom: 12 }}><Calendar tasks={tasks} /></div>}
+        {showCalendar && <div style={{ marginBottom: 12 }}><Calendar tasks={tasks} onTaskClick={(id) => {
+          const el = document.getElementById(`task-row-${id}`);
+          if (el) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            // simulate click to expand
+            el.click();
+          }
+        }} /></div>}
         {tasks.length === 0 && <div className="empty">No tasks yet — add one above.</div>}
         {tasks.map((t) => (
           <Task

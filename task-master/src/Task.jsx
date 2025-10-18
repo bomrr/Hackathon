@@ -9,12 +9,14 @@ import "./Task.css";
 export function Task({ id, name: initialName = "", status: initialStatus = "todo", details = "", startDate = "", dueDate = "", onStatusChange, onDelete, onUpdate, onDrop, onDragStart, onDragEnd }) {
     const [expanded, setExpanded] = useState(false);
     const [status, setStatus] = useState(initialStatus);
-    const [name] = useState(initialName);
+    const name = initialName; // read directly from prop to avoid stale state
     const [editing, setEditing] = useState(false);
     const [editName, setEditName] = useState(initialName);
     const [editDetails, setEditDetails] = useState(details);
     const [editStart, setEditStart] = useState(startDate || "");
     const [editDue, setEditDue] = useState(dueDate || "");
+    const [editingStartInline, setEditingStartInline] = useState(false);
+    const [editingDueInline, setEditingDueInline] = useState(false);
     const nameRef = useRef(null);
 
     const statuses = [
@@ -46,9 +48,17 @@ export function Task({ id, name: initialName = "", status: initialStatus = "todo
 
     function handleSave() {
         if (typeof onUpdate === 'function') {
-            onUpdate(id, { name: editName, details: editDetails, status, startDate: editStart, dueDate: editDue });
+            onUpdate(id, { name: editName || name, details: editDetails || details, status, startDate: editStart || startDate || '', dueDate: editDue || dueDate || '' });
         }
         setEditing(false);
+    }
+
+    function saveInlineDates() {
+        if (typeof onUpdate === 'function') {
+            onUpdate(id, { name: editName || name, details: editDetails || details, status, startDate: editStart || startDate || '', dueDate: editDue || dueDate || '' });
+        }
+        setEditingStartInline(false);
+        setEditingDueInline(false);
     }
 
     function handleDelete(e) {
@@ -96,6 +106,7 @@ export function Task({ id, name: initialName = "", status: initialStatus = "todo
 
     return (
         <div
+            id={`task-row-${id}`}
             className={"task" + (expanded ? " expanded" : "")}
             onClick={() => setExpanded(true)}
             role="group"
@@ -110,7 +121,27 @@ export function Task({ id, name: initialName = "", status: initialStatus = "todo
                 <button className="task-drag-handle" aria-label="Drag to reorder" draggable onDragStart={handleDragStart} onDragEnd={handleDragEnd}>≡</button>
 
                 <div className="task-name">{name || "Untitled"}</div>
-                {dueDate ? <div className="task-due">Due: {dueDate}</div> : null}
+                <div className="task-dates-inline">
+                    {startDate ? (
+                            editingStartInline ? (
+                            <input type="date" value={editStart} onChange={(e) => setEditStart(e.target.value)} onBlur={() => saveInlineDates()} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); saveInlineDates(); } if (e.key === 'Escape') { e.preventDefault(); setEditingStartInline(false); } }} />
+                        ) : (
+                            <div className="task-start" onClick={(e) => { e.stopPropagation(); setEditingStartInline(true); setEditStart(startDate || ''); }}>{startDate}</div>
+                        )
+                    ) : (
+                        <div className="task-start muted" onClick={(e) => { e.stopPropagation(); setEditingStartInline(true); setEditStart(''); }}>Set start</div>
+                    )}
+
+                    {dueDate ? (
+                        editingDueInline ? (
+                            <input type="date" value={editDue} onChange={(e) => setEditDue(e.target.value)} onBlur={() => saveInlineDates()} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); saveInlineDates(); } if (e.key === 'Escape') { e.preventDefault(); setEditingDueInline(false); } }} />
+                        ) : (
+                            <div className="task-due" onClick={(e) => { e.stopPropagation(); setEditingDueInline(true); setEditDue(dueDate || ''); }}>Due: {dueDate}</div>
+                        )
+                    ) : (
+                        <div className="task-due muted" onClick={(e) => { e.stopPropagation(); setEditingDueInline(true); setEditDue(''); }}>Set due</div>
+                    )}
+                </div>
 
                 <select
                     className="task-status"
