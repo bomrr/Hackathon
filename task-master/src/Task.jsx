@@ -6,7 +6,7 @@ import "./Task.css";
 // onDelete(id)
 // onUpdate(id, { name, details, status })
 // onDrop(event, targetId) - called when a drop happens on this task
-export function Task({ id, name: initialName = "", status: initialStatus = "todo", details = "", startDate = "", dueDate = "", onStatusChange, onDelete, onUpdate, onDrop, onDragStart, onDragEnd }) {
+export function Task({ id, name: initialName = "", status: initialStatus = "todo", details = "", startDate = "", dueDate = "", estimatedMinutes = 0, completedAt = null, onStatusChange, onDelete, onUpdate, onDrop, onDragStart, onDragEnd, onSelect }) {
     const [expanded, setExpanded] = useState(false);
     const [status, setStatus] = useState(initialStatus);
     const name = initialName; // read directly from prop to avoid stale state
@@ -15,9 +15,13 @@ export function Task({ id, name: initialName = "", status: initialStatus = "todo
     const [editDetails, setEditDetails] = useState(details);
     const [editStart, setEditStart] = useState(startDate || "");
     const [editDue, setEditDue] = useState(dueDate || "");
+    const [editEstimated, setEditEstimated] = useState(estimatedMinutes || 0);
     const [editingStartInline, setEditingStartInline] = useState(false);
     const [editingDueInline, setEditingDueInline] = useState(false);
     const nameRef = useRef(null);
+
+    // NEW: keep internal status in sync when parent updates task (e.g., timer completion)
+    useEffect(() => { setStatus(initialStatus); }, [initialStatus]);
 
     const statuses = [
         { value: "todo", label: "Todo" },
@@ -29,12 +33,19 @@ export function Task({ id, name: initialName = "", status: initialStatus = "todo
         const next = e.target.value;
         setStatus(next);
         if (typeof onStatusChange === "function") onStatusChange(id, next);
+        // auto-set or clear completedAt when status toggles
+        if (typeof onUpdate === 'function') {
+            if (next === 'done') {
+                onUpdate(id, { name: editName || name, details: editDetails || details, status: next, startDate: editStart || startDate || '', dueDate: editDue || dueDate || '', estimatedMinutes: Number(editEstimated) || 0, completedAt: new Date().toISOString() });
+            } else {
+                onUpdate(id, { name: editName || name, details: editDetails || details, status: next, startDate: editStart || startDate || '', dueDate: editDue || dueDate || '', estimatedMinutes: Number(editEstimated) || 0, completedAt: null });
+            }
+        }
     }
 
     function toggleExpanded(e) {
-        // allow callers (like the select) to stop propagation when needed
         if (e) e.stopPropagation();
-            setExpanded((s) => !s);
+        setExpanded((s) => !s);
     }
 
     useEffect(() => {
@@ -46,16 +57,30 @@ export function Task({ id, name: initialName = "", status: initialStatus = "todo
         }
     }, [editing]);
 
+    // click-outside to cancel inline edit
+    useEffect(() => {
+        function onDocClick(e) {
+            if (!editing) return;
+            const input = nameRef.current;
+            if (!input) return;
+            if (e.target === input || input.contains(e.target)) return;
+            // click outside -> stop editing (save changes)
+            handleSave();
+        }
+        document.addEventListener('mousedown', onDocClick);
+        return () => document.removeEventListener('mousedown', onDocClick);
+    }, [editing, editName, editDetails]);
+
     function handleSave() {
         if (typeof onUpdate === 'function') {
-            onUpdate(id, { name: editName || name, details: editDetails || details, status, startDate: editStart || startDate || '', dueDate: editDue || dueDate || '' });
+            onUpdate(id, { name: editName || name, details: editDetails || details, status, startDate: editStart || startDate || '', dueDate: editDue || dueDate || '', estimatedMinutes: Number(editEstimated) || 0 });
         }
         setEditing(false);
     }
 
     function saveInlineDates() {
         if (typeof onUpdate === 'function') {
-            onUpdate(id, { name: editName || name, details: editDetails || details, status, startDate: editStart || startDate || '', dueDate: editDue || dueDate || '' });
+            onUpdate(id, { name: editName || name, details: editDetails || details, status, startDate: editStart || startDate || '', dueDate: editDue || dueDate || '', estimatedMinutes: Number(editEstimated) || 0 });
         }
         setEditingStartInline(false);
         setEditingDueInline(false);
@@ -70,11 +95,8 @@ export function Task({ id, name: initialName = "", status: initialStatus = "todo
         const taskEl = e.currentTarget.closest('.task');
         try {
             e.dataTransfer.setData('text/plain', String(id));
-        } catch (err) {
-            // older browsers may throw
-        }
+        } catch (err) {}
         e.dataTransfer.effectAllowed = 'move';
-        // add dragging class to the task element for visual feedback
         if (taskEl) taskEl.classList.add('dragging');
         if (typeof onDragStart === 'function') onDragStart(id);
     }
@@ -99,19 +121,34 @@ export function Task({ id, name: initialName = "", status: initialStatus = "todo
         if (taskEl) taskEl.classList.add('drag-over');
     }
 
+    function handleDragOver(e) {
+        e.preventDefault();
+        const taskEl = e.currentTarget.closest('.task');
+        if (taskEl) taskEl.classList.add('drag-over');
+    }
+
     function handleDragLeave(e) {
         const taskEl = e.currentTarget.closest('.task');
-        if (taskEl) taskEl.classList.remove('drag-over');
+        if (!taskEl) return;
+        const x = e.clientX;
+        const y = e.clientY;
+        setTimeout(() => {
+            const el = document.elementFromPoint(x, y);
+            const parent = el ? el.closest('.task') : null;
+            if (parent !== taskEl) {
+                taskEl.classList.remove('drag-over');
+            }
+        }, 10);
     }
 
     return (
         <div
             id={`task-row-${id}`}
-            className={"task" + (expanded ? " expanded" : "")}
-            onClick={() => setExpanded(true)}
+            className={"task status-" + status.replace(/\s+/g, '-') + (expanded ? " expanded" : "")}
+            onClick={() => { setExpanded(true); if (typeof onSelect === 'function') onSelect(id); }}
             role="group"
             aria-label={`task-${id}`}
-            onDragOver={(e) => e.preventDefault()}
+            onDragOver={handleDragOver}
             onDrop={handleDropLocal}
             onDragEnter={handleDragEnter}
             onDragLeave={handleDragLeave}
@@ -120,10 +157,17 @@ export function Task({ id, name: initialName = "", status: initialStatus = "todo
             <div className="task-row">
                 <button className="task-drag-handle" aria-label="Drag to reorder" draggable onDragStart={handleDragStart} onDragEnd={handleDragEnd}>≡</button>
 
-                <div className="task-name">{name || "Untitled"}</div>
+                <div className="task-name">
+                    {!editing ? (
+                        <div onClick={(e) => { e.stopPropagation(); setEditing(true); setEditName(name); setEditDetails(details); }}>{name || "Untitled"}</div>
+                    ) : (
+                        <input ref={nameRef} value={editName} onChange={(e) => setEditName(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleSave(); } if (e.key === 'Escape') { setEditing(false); } }} />
+                    )}
+                </div>
+
                 <div className="task-dates-inline">
                     {startDate ? (
-                            editingStartInline ? (
+                        editingStartInline ? (
                             <input type="date" value={editStart} onChange={(e) => setEditStart(e.target.value)} onBlur={() => saveInlineDates()} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); saveInlineDates(); } if (e.key === 'Escape') { e.preventDefault(); setEditingStartInline(false); } }} />
                         ) : (
                             <div className="task-start" onClick={(e) => { e.stopPropagation(); setEditingStartInline(true); setEditStart(startDate || ''); }}>{startDate}</div>
@@ -143,19 +187,22 @@ export function Task({ id, name: initialName = "", status: initialStatus = "todo
                     )}
                 </div>
 
-                <select
-                    className="task-status"
-                    value={status}
-                    onChange={handleStatusChange}
-                    onClick={(e) => e.stopPropagation()}
-                    aria-label="Change task status"
-                >
-                    {statuses.map((s) => (
-                        <option key={s.value} value={s.value}>
-                            {s.label}
-                        </option>
-                    ))}
-                </select>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <div className="task-estimated" title="Estimated minutes" onClick={(e) => { e.stopPropagation(); setEditing(true); }}>{editEstimated}m</div>
+
+                    <select
+                        className="task-status"
+                        value={status}
+                        onChange={handleStatusChange}
+                        onClick={(e) => e.stopPropagation()}
+                        aria-label="Change task status"
+                    >
+                        {statuses.map((s) => (
+                            <option key={s.value} value={s.value}>
+                                {s.label}
+                            </option>
+                        ))}
+                    </select>
 
                     <button
                         type="button"
@@ -176,37 +223,45 @@ export function Task({ id, name: initialName = "", status: initialStatus = "todo
                     >
                         ✕
                     </button>
+                </div>
             </div>
 
-                    {expanded && (
-                        <div id={`task-details-${id}`} className="task-details" onClick={(e) => e.stopPropagation()}>
-                            {!editing ? (
-                                <>
-                                    {details ? (
-                                        <div className="task-description" onClick={(e) => { e.stopPropagation(); setEditing(true); setEditName(name); setEditDetails(details); }}>{details}</div>
-                                    ) : (
-                                        <div className="task-description muted" onClick={(e) => { e.stopPropagation(); setEditing(true); setEditName(name); setEditDetails(details); }}>No details</div>
-                                    )}
-                                    <div className="task-actions">
-                                        <button onClick={() => { setEditing(true); setEditName(name); setEditDetails(details); }}>Edit</button>
-                                    </div>
-                                </>
+            {expanded && (
+                <div id={`task-details-${id}`} className="task-details" onClick={(e) => e.stopPropagation()}>
+                    {!editing ? (
+                        <>
+                            {details ? (
+                                <div className="task-description" onClick={(e) => { e.stopPropagation(); setEditing(true); setEditName(name); setEditDetails(details); }}>{details}</div>
                             ) : (
-                                <div className="task-edit">
-                                    <input ref={nameRef} value={editName} onChange={(e) => setEditName(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleSave(); } if (e.key === 'Escape') { setEditing(false); } }} />
-                                    <textarea value={editDetails} onChange={(e) => setEditDetails(e.target.value)} onKeyDown={(e) => { if (e.key === 'Escape') { setEditing(false); } if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); handleSave(); } }} placeholder="Details (Ctrl+Enter to save)" />
-                                    <div className="task-dates">
-                                        <label>Start: <input type="date" value={editStart} onChange={(e) => setEditStart(e.target.value)} /></label>
-                                        <label>Due: <input type="date" value={editDue} onChange={(e) => setEditDue(e.target.value)} /></label>
-                                    </div>
-                                    <div className="task-edit-actions">
-                                        <button onClick={handleSave}>Save</button>
-                                        <button onClick={() => setEditing(false)}>Cancel</button>
-                                    </div>
-                                </div>
+                                <div className="task-description muted" onClick={(e) => { e.stopPropagation(); setEditing(true); setEditName(name); setEditDetails(details); }}>No details</div>
                             )}
+                            <div style={{ marginTop: 8 }}>
+                                <div className="muted">Estimated: {estimatedMinutes}m</div>
+                                {status === 'done' && completedAt ? (
+                                    <div className="muted">Completed: {new Date(completedAt).toLocaleString()}</div>
+                                ) : null}
+                            </div>
+                            <div className="task-actions">
+                                <button onClick={() => { setEditing(true); setEditName(name); setEditDetails(details); }}>Edit</button>
+                            </div>
+                        </>
+                    ) : (
+                        <div className="task-edit">
+                            <input ref={nameRef} value={editName} onChange={(e) => setEditName(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleSave(); } if (e.key === 'Escape') { setEditing(false); } }} />
+                            <textarea value={editDetails} onChange={(e) => setEditDetails(e.target.value)} onKeyDown={(e) => { if (e.key === 'Escape') { setEditing(false); } if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); handleSave(); } }} placeholder="Details (Ctrl+Enter to save)" />
+                            <div className="task-dates">
+                                <label>Start: <input type="date" value={editStart} onChange={(e) => setEditStart(e.target.value)} /></label>
+                                <label>Due: <input type="date" value={editDue} onChange={(e) => setEditDue(e.target.value)} /></label>
+                                <label>Est (min): <input type="number" min="0" value={editEstimated} onChange={(e) => setEditEstimated(e.target.value)} /></label>
+                            </div>
+                            <div className="task-edit-actions">
+                                <button onClick={handleSave}>Save</button>
+                                <button onClick={() => setEditing(false)}>Cancel</button>
+                            </div>
                         </div>
                     )}
+                </div>
+            )}
         </div>
     );
 }
