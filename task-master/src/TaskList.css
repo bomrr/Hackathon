@@ -1,43 +1,54 @@
-.task-list { padding: 16px; }
+.task-list { padding: 16px; padding-bottom: 180px; }
 
-.task-add { display: flex; gap: 8px; margin-bottom: 12px; align-items: center; }
-.task-add input[type="text"], .task-add input[type="date"] { padding: 8px; border-radius: 6px; border: 1px solid #d1d5db; }
+.task-add { display:flex; gap:8px; margin-bottom:12px; align-items:center; }
+.task-add input[type="text"], .task-add input[type="date"], .task-add input[type="number"] {
+  padding:8px; border-radius:6px; border:1px solid #d1d5db; background:var(--card-bg); color:var(--text-color);
+}
 .task-add input[type="text"] { flex: 1 1 auto; }
-.task-add button { padding: 8px 12px; border-radius: 6px; border: none; background: #2563eb; color: white; cursor: pointer; }
+.task-add button { padding:8px 12px; border-radius:6px; border:none; background:#2563eb; color:white; cursor:pointer; }
 
-.task-list-items { display: flex; flex-direction: column; }
-.empty { color: #6b7280; font-style: italic; }
+.task-list-items { display:flex; flex-direction:column; }
+.empty { color:#6b7280; font-style:italic; }
 
-.task-add input[type="number"] { width: 80px; }
-
-/* make space at bottom when time-manager is present */
-.task-list { padding-bottom: 140px; }
-
+/* Floating action buttons (FABs) */
 .timer-fab {
-	position: fixed;
-	right: 18px;
-	bottom: 18px;
-	background: #2563eb;
-	color: white;
-	border: none;
-	padding: 12px 16px;
-	border-radius: 999px;
-	box-shadow: 0 6px 18px rgba(37,99,235,0.18);
-	cursor: pointer;
+  position: fixed; right: 18px; bottom: 18px;
+  background:#2563eb; color:#fff; border:none; padding:12px 16px; border-radius:999px;
+  box-shadow:0 6px 18px rgba(37,99,235,0.18); cursor:pointer; z-index: 60;
 }
-.timer-fab:active { transform: translateY(1px); }
+.timer-fab:active{ transform: translateY(1px); }
 
-/* Analytics toggle FAB */
 .analytics-fab {
-  position: fixed;
-  right: 18px;
-  bottom: 70px; /* stacked above timer */
-  background: #111827;
-  color: #fff;
-  border: none;
-  padding: 12px 16px;
-  border-radius: 999px;
-  box-shadow: 0 6px 18px rgba(17,24,39,0.18);
-  cursor: pointer;
+  position: fixed; right: 18px; bottom: 70px;
+  background:#111827; color:#fff; border:none; padding:12px 16px; border-radius:999px;
+  box-shadow:0 6px 18px rgba(17,24,39,0.18); cursor:pointer; z-index: 60;
 }
-.analytics-fab:active { transform: translateY(1px); }
+.analytics-fab:active{ transform: translateY(1px); }
+
+/* NEW: make the Time Manager a floating panel that moves with the screen */
+.time-manager {
+  position: fixed;
+  right: 78px; /* leave room for FABs */
+  bottom: 18px;
+  width: min(560px, 88vw);
+  background: var(--card-bg);
+  color: var(--text-color);
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+  padding: 12px;
+  z-index: 55;
+}
+
+.tm-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 8px;
+}
+
+@media (max-width: 700px) {
+  .time-manager { right: 18px; width: calc(100vw - 36px); }
+}

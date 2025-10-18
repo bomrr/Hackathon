@@ -1,87 +1,62 @@
-import React, { useState } from 'react';
-import './Calendar.css';
+import React from "react";
+import "./Calendar.css";
 
-function startOfMonth(date) {
-  const d = new Date(date);
-  d.setDate(1);
-  d.setHours(0,0,0,0);
-  return d;
-}
-
-function addMonths(date, n) {
-  const d = new Date(date);
-  d.setMonth(d.getMonth() + n);
-  return d;
-}
-
-function daysInMonth(date) {
-  const d = new Date(date.getFullYear(), date.getMonth() + 1, 0);
-  return d.getDate();
-}
-
-export function Calendar({ tasks = [], onTaskClick }) {
-  const [cursor, setCursor] = useState(() => startOfMonth(new Date()));
-
-  const year = cursor.getFullYear();
-  const month = cursor.getMonth();
-  const firstDay = new Date(year, month, 1).getDay();
-  const totalDays = daysInMonth(cursor);
-
-  // map dates (YYYY-MM-DD) to tasks
+/**
+ * props:
+ *  - tasks: [{ id, name, status, startDate, dueDate }]
+ *  - onTaskClick?: (id) => void
+ */
+export function Calendar({ tasks = [], onTaskClick = () => {} }) {
+  // group tasks by due date (fallback to startDate)
   const byDate = {};
-  tasks.forEach(t => {
-    if (t.dueDate) {
-      const k = t.dueDate; // stored as yyyy-mm-dd
-      if (!byDate[k]) byDate[k] = [];
-      byDate[k].push(t);
-    }
+  (tasks || []).forEach(t => {
+    const d = t.dueDate || t.startDate;
+    if (!d) return;
+    byDate[d] = byDate[d] || [];
+    byDate[d].push(t);
   });
 
-  const weeks = [];
-  let day = 1 - firstDay;
-  while (day <= totalDays) {
-    const week = [];
-    for (let i = 0; i < 7; i++, day++) {
-      const isValid = day >= 1 && day <= totalDays;
-      let dateStr = null;
-      if (isValid) {
-        const d = new Date(year, month, day);
-        dateStr = d.toISOString().slice(0,10);
-      }
-      week.push({ day: isValid ? day : null, dateStr, tasks: dateStr ? byDate[dateStr] || [] : [] });
-    }
-    weeks.push(week);
-  }
+  // make a single current month grid (simple version)
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth(); // 0-based
+  const first = new Date(year, month, 1);
+  const startDay = first.getDay(); // 0=Sun
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+  const cells = [];
+  for (let i = 0; i < startDay; i++) cells.push(null);
+  for (let d = 1; d <= daysInMonth; d++) cells.push(new Date(year, month, d));
 
   return (
     <div className="calendar">
-      <div className="calendar-header">
-        <button onClick={() => setCursor(addMonths(cursor, -1))}>&lt;</button>
-        <div>{cursor.toLocaleString(undefined, { month: 'long', year: 'numeric' })}</div>
-        <button onClick={() => setCursor(addMonths(cursor, 1))}>&gt;</button>
-      </div>
-
-      <div className="calendar-grid">
-        <div className="calendar-weekdays">Sun</div>
-        <div className="calendar-weekdays">Mon</div>
-        <div className="calendar-weekdays">Tue</div>
-        <div className="calendar-weekdays">Wed</div>
-        <div className="calendar-weekdays">Thu</div>
-        <div className="calendar-weekdays">Fri</div>
-        <div className="calendar-weekdays">Sat</div>
-
-        {weeks.map((week, wi) => (
-          <React.Fragment key={wi}>
-            {week.map((cell, ci) => (
-              <div key={ci} className={"calendar-cell" + (cell.tasks.length ? ' has-tasks' : '')}>
-                {cell.day && <div className="calendar-day">{cell.day}</div>}
-                {cell.tasks && cell.tasks.map(t => (
-                  <button key={t.id} className="calendar-task" onClick={() => onTaskClick && onTaskClick(t.id)}>{t.name}</button>
+      <div className="header">Calendar — {now.toLocaleString(undefined, { month: 'long', year: 'numeric' })}</div>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)" }}>
+        {["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].map(day => (
+          <div key={day} className="day" style={{ background:"#f9fafb", fontWeight:600 }}>{day}</div>
+        ))}
+        {cells.map((date, i) => {
+          if (!date) return <div key={`e-${i}`} className="day" />;
+          const ymd = date.toISOString().slice(0,10);
+          const list = byDate[ymd] || [];
+          return (
+            <div key={ymd} className="day">
+              <div style={{ position:"absolute", top:4, right:6, fontSize:12, opacity:0.7 }}>{date.getDate()}</div>
+              <div>
+                {list.map(t => (
+                  <button
+                    key={t.id}
+                    className={`task-pill status-${(t.status || 'todo').replace(/\s+/g,'-')}`}
+                    onClick={() => onTaskClick(t.id)}
+                    title={t.name}
+                  >
+                    {t.name}
+                  </button>
                 ))}
               </div>
-            ))}
-          </React.Fragment>
-        ))}
+            </div>
+          );
+        })}
       </div>
     </div>
   );
