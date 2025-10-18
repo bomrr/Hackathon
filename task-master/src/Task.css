@@ -1,13 +1,12 @@
 :root{
-  /* Theme + status colors */
   --app-bg:#f5f7fb;
   --card-bg:#ffffff;
   --text-color:#111827;
   --base-font-size:16px;
 
-  --todo:#3b82f6;        /* BLUE */
-  --inprogress:#f59e0b;  /* YELLOW */
-  --done:#22c55e;        /* GREEN */
+  --todo:#3b82f6;
+  --inprogress:#f59e0b;
+  --done:#22c55e;
 
   --todo-bg:#e8f0ff;
   --inprogress-bg:#fff7cc;
@@ -18,7 +17,7 @@
 
 body{ background:var(--app-bg); color:var(--text-color); font-size:var(--base-font-size); }
 
-/* ---- Task card ---- */
+/* Task card */
 .task {
   display: block;
   width: 100%;
@@ -28,210 +27,68 @@ body{ background:var(--app-bg); color:var(--text-color); font-size:var(--base-fo
   background: var(--card-bg);
   margin-bottom: 10px;
   box-sizing: border-box;
-
-  /* IMPORTANT: don't clip inner controls on the right */
   position: relative;
   overflow: visible;
 }
 
-/* tint by status */
+/* tints & accents */
 .task.status-todo { background: var(--todo-bg); }
 .task.status-in-progress { background: var(--inprogress-bg); }
 .task.status-done { background: var(--done-bg); }
 
-/* subtle left accent by status */
 .task.status-done { border-left: 6px solid #16a34a; }
 .task.status-in-progress { border-left: 6px solid #f59e0b; }
 .task.status-todo { border-left: 6px solid transparent; }
 
-/* primary row layout */
-.task-row{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  min-height: 44px; /* stabilize row height */
-  padding-right: 6px; /* breathing room so controls don't touch the edge */
-}
+/* row */
+.task-row{ display:flex; align-items:center; gap:10px; min-height: 44px; padding-right: 6px; }
 
-.task-drag-handle {
-  background:transparent;
-  border:none;
-  cursor:grab;
-  font-size:18px;
-  padding: 4px 6px;
-  line-height: 1;
-}
+.task-drag-handle { background:transparent; border:none; cursor:grab; font-size:18px; padding:4px 6px; line-height:1; }
+.task-name{ flex:1 1 auto; font-weight:300; color:#111827; min-width:0; }
 
-.task-name{
-  flex:1 1 auto;
-  font-weight:300;
-  color:#111827;
-  min-width: 0; /* allow text to truncate in flex */
-}
-
-.task-name input {
-  width: 100%;
-  padding: 6px;
-  border-radius: 6px;
-  border: 1px solid #d1d5db;
-}
+.task-name input { width: 100%; padding: 6px; border-radius: 6px; border: 1px solid #d1d5db; }
 
 /* inline dates */
-.task-dates-inline{
-  display:flex;
-  gap:8px;
-  align-items:center;
-  margin-left:8px;
-}
-.task-dates-inline .task-start,
-.task-dates-inline .task-due {
-  font-size:12px;
-  color:#374151;
-  padding:2px 6px;
-  border-radius:6px;
-  background: rgba(0,0,0,0.03);
-}
+.task-dates-inline{ display:flex; gap:8px; align-items:center; margin-left:8px; }
+.task-dates-inline .task-start, .task-dates-inline .task-due { font-size:12px; color:#374151; padding:2px 6px; border-radius:6px; background: rgba(0,0,0,0.03); }
 .task-dates-inline .muted { color:#9ca3af; font-style:italic; }
-.task-dates-inline input[type="date"] {
-  padding:4px 6px;
-  border-radius:6px;
-  border:1px solid #d1d5db;
-}
+.task-dates-inline input[type="date"] { padding:4px 6px; border-radius:6px; border:1px solid #d1d5db; }
 
-/* ---------- Right-side controls cluster ---------- */
-.task-controls{
-  display:flex;
-  align-items:center;
-  gap:8px;
-  flex: 0 0 auto;    /* never shrink into the edge */
-}
+/* controls cluster */
+.task-controls{ display:flex; align-items:center; gap:8px; flex:0 0 auto; }
 
-/* estimate pill */
-.task-estimated {
-  background: #f3f4f6;
-  padding: 4px 8px;
-  border-radius: 6px;
-  font-size: 13px;
-  color: #374151;
-  cursor: pointer;
-}
+.task-estimated { background:#f3f4f6; padding:4px 8px; border-radius:6px; font-size:13px; color:#374151; cursor:pointer; }
 
-/* ---------- Status dropdown (wrapped for a rotating chevron) ---------- */
-.task-select {
-  position: relative;
-  flex: 0 0 170px;  /* small trim so caret & X never get squeezed */
-}
-
+/* wrapped select with chevron */
+.task-select { position:relative; flex:0 0 170px; }
 .task-select select {
-  width: 100%;
-  height: 34px;
-  line-height: 1.2;
-  padding: 6px 32px 6px 10px; /* room for chevron */
-  border-radius: 6px;
-  border: 1px solid #d1d5db;
-  background: #f9fafb;
-  font-family: "Raleway", sans-serif;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
+  width:100%; height:34px; line-height:1.2;
+  padding:6px 32px 6px 10px; border-radius:6px; border:1px solid #d1d5db; background:#f9fafb;
+  font-family:"Raleway", sans-serif; appearance:none; -webkit-appearance:none; -moz-appearance:none;
+}
+.task-select::after{
+  content:""; position:absolute; right:10px; top:50%; width:0; height:0; margin-top:-3px;
+  border-left:5px solid transparent; border-right:5px solid transparent; border-top:6px solid #55637e;
+  pointer-events:none; transition:transform .18s ease;
+}
+.task-select.open::after{ transform: rotate(180deg); }
+
+.task-toggle{ border:none; background:transparent; padding:6px; cursor:pointer; font-size:16px; line-height:1; transition:transform .18s ease; }
+.task.expanded .task-toggle{ transform: rotate(180deg); }
+
+.task-delete{
+  background:#ef4444; color:#fff; border:none; padding:6px 10px; border-radius:8px; cursor:pointer;
+  min-width:36px; display:inline-flex; align-items:center; justify-content:center;
 }
 
-/* chevron */
-.task-select::after {
-  content:"";
-  position:absolute;
-  right:10px;
-  top:50%;
-  width: 0;
-  height: 0;
-  margin-top:-3px;
-  border-left:5px solid transparent;
-  border-right:5px solid transparent;
-  border-top:6px solid #55637e;
-  pointer-events: none;
-  transition: transform .18s ease;
-}
+/* details */
+.task-details{ margin-top:8px; padding-top:8px; border-top:1px dashed #eef2f7; color:#374151; }
 
-.task-select.open::after { transform: rotate(180deg); }
+.task-edit{ margin-top:8px; display:flex; flex-direction:column; gap:8px; }
+.task-edit input, .task-edit textarea{ padding:8px; border-radius:6px; border:1px solid #d1d5db; width:100%; box-sizing:border-box; }
 
-/* toggle (expand/collapse details) */
-.task-toggle {
-  border: none;
-  background: transparent;
-  padding: 6px;
-  cursor: pointer;
-  font-size: 16px;
-  line-height: 1;
-  transition: transform .18s ease;
-}
-
-.task.expanded .task-toggle { transform: rotate(180deg); }
-
-/* delete button — visible, aligned, and not clipped */
-.task-delete {
-  background:#ef4444;
-  color:#fff;
-  border:none;
-  padding:6px 10px;
-  border-radius:8px;
-  cursor:pointer;
-  min-width: 36px;
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-}
-
-/* details section */
-.task-details {
-  margin-top: 8px;
-  padding-top: 8px;
-  border-top: 1px dashed #eef2f7;
-  color: #374151;
-}
-
-.task-edit {
-  margin-top: 8px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.task-edit input,
-.task-edit textarea {
-  padding: 8px;
-  border-radius: 6px;
-  border: 1px solid #d1d5db;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-.task-description.muted {
-  color: #9ca3af;
-  font-style: italic;
-}
+.task-description.muted{ color:#9ca3af; font-style:italic; }
 
 /* DnD feedback */
-.task.dragging {
-  opacity: 0.6;
-  transform: scale(0.98);
-  box-shadow: 0 8px 20px rgba(16,24,40,0.08);
-}
-
-.task.drag-over {
-  border-color: #93c5fd;
-  box-shadow: inset 0 0 0 2px rgba(59,130,246,0.06);
-}
-
-/* Bottom Time Manager window (legacy – TaskList also has a floating panel) */
-.time-manager {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: #ffffff;
-  border-top: 1px solid #e6e6e6;
-  padding: 12px;
-  box-shadow: 0 - 6px 20px rgba(16,24,40,0.06);
-}
-
-.time-manager .tm-header { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+.task.dragging{ opacity:.6; transform:scale(.98); box-shadow:0 8px 20px rgba(16,24,40,0.08); }
+.task.drag-over{ border-color:#93c5fd; box-shadow: inset 0 0 0 2px rgba(59,130,246,0.06); }

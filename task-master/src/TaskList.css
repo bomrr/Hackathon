@@ -1,7 +1,7 @@
-/* List wrapper — FIX: this was `task-list` (no dot) after the merge */
+/* List wrapper */
 .task-list {
   padding: 16px;
-  padding-bottom: 180px;
+  /* bottom padding is set dynamically from React when the panel is open */
   max-width: 980px;
   margin: 0 auto;
 }
@@ -23,7 +23,9 @@
   background:var(--card-bg);
   color:var(--text-color);
 }
+
 .task-add input[type="text"] { flex: 1 1 auto; }
+
 .task-add button {
   font-family: "Raleway", sans-serif;
   padding:8px 12px;
@@ -37,36 +39,51 @@
 .task-list-items { display:flex; flex-direction:column; }
 .empty { color:#6b7280; font-style:italic; }
 
-/* Floating action buttons (FABs) */
+/* Floating action buttons */
 .timer-fab {
   position: fixed; right: 18px; bottom: 18px;
   background:#2563eb; color:#fff; border:none; padding:12px 16px; border-radius:999px;
-  box-shadow:0 6px 18px rgba(37,99,235,0.18); cursor:pointer; z-index: 60;
+  box-shadow:0 6px 18px rgba(37,99,235,0.18); cursor:pointer; z-index: 120;
 }
 .timer-fab:active{ transform: translateY(1px); }
 
 .analytics-fab {
   position: fixed; right: 18px; bottom: 70px;
   background:#111827; color:#fff; border:none; padding:12px 16px; border-radius:999px;
-  box-shadow:0 6px 18px rgba(17,24,39,0.18); cursor:pointer; z-index: 60;
+  box-shadow:0 6px 18px rgba(17,24,39,0.18); cursor:pointer; z-index: 120;
 }
 .analytics-fab:active{ transform: translateY(1px); }
 
-/* Floating Time Manager panel */
+/* -------- Bottom-sheet Time Manager (non-blocking) -------- */
 .time-manager {
   position: fixed;
-  right: 78px; /* leave room for FABs */
-  bottom: 18px;
-  width: min(560px, 88vw);
+  left: 0; right: 0; bottom: 0;
   background: var(--card-bg);
   color: var(--text-color);
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-  padding: 12px;
-  z-index: 55;
+  border-top: 1px solid #e5e7eb;
+  border-radius: 18px 18px 0 0;
+  box-shadow: 0 -18px 40px rgba(0,0,0,0.18);
+  padding: 10px 16px 16px;
+  z-index: 115;
+
+  /* slide-up animation */
+  transform: translateY(100%);
+  transition: transform .25s ease;
+  max-height: 60vh;
+  overflow: auto;
 }
 
+.time-manager.open { transform: translateY(0); }
+
+/* Grab handle */
+.tm-handle {
+  width: 42px; height: 5px;
+  background: #d1d5db;
+  border-radius: 999px;
+  margin: 6px auto 8px;
+}
+
+/* Header */
 .tm-header {
   display: flex;
   align-items: center;
@@ -76,6 +93,91 @@
   padding-bottom: 8px;
 }
 
+.tm-header .tm-title {
+  font-weight: 600;
+  letter-spacing: .02em;
+}
+
+/* Row for the task picker and any quick controls */
+.tm-controls-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin: 12px 0;
+}
+
+.tm-controls-row select {
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  background:#f9fafb;
+}
+
+/* ---- Timer content styling ---- */
+.timer {
+  margin-top: 8px;
+}
+
+.timer__bar {
+  height: 8px;
+  background: #eef2f7;
+  border-radius: 999px;
+  overflow: hidden;
+  margin: 8px auto 0;
+  max-width: 680px;
+}
+
+.timer__bar-fill {
+  height: 100%;
+  background: var(--todo, #3b82f6);
+  border-radius: 999px;
+  transition: width .2s ease;
+}
+
+.timer__top {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.timer__title { margin: 0; font-weight: 600; }
+
+.timer__modes {
+  display:flex; gap: 8px;
+}
+.tm-btn {
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  cursor:pointer;
+}
+.tm-btn:active { transform: translateY(1px); }
+
+.timer__display {
+  font-variant-numeric: tabular-nums;
+  font-size: 34px;
+  text-align:center;
+  margin: 12px 0;
+  letter-spacing: .02em;
+}
+
+.timer__actions {
+  display:flex; gap: 10px; justify-content:center; flex-wrap: wrap;
+}
+
+.tm-pill {
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid #e5e7eb;
+  background:#fff;
+  cursor:pointer;
+}
+.tm-primary { background:#1f2937; color:#fff; border-color:#1f2937; }
+
 @media (max-width: 700px) {
-  .time-manager { right: 18px; width: calc(100vw - 36px); }
+  .time-manager { max-height: 70vh; }
 }
