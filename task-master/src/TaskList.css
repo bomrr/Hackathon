@@ -50,6 +50,7 @@
   cursor: pointer;
 }
 .btn-primary:active { transform: translateY(1px); }
+.btn-primary:hover { background: rgba(0, 16, 78, 0.829); }
 
 .btn-ghost {
   padding: 10px 12px;
@@ -59,6 +60,7 @@
   cursor: pointer;
 }
 .btn-ghost:active { transform: translateY(1px); }
+.btn-ghost:hover { background: rgba(17,24,39,0.035); }
 
 .add-advanced {
   margin-top: 10px;
@@ -185,11 +187,14 @@
 .timer__title { margin:0; font-weight:600; }
 .timer__modes { display:flex; gap:8px; }
 .tm-btn { padding:8px 12px; border-radius:10px; border:1px solid #e5e7eb; background:#fff; cursor:pointer; }
+.tm-btn:hover { background: rgba(17,24,39,0.035); }
 .tm-btn:active{ transform:translateY(1px); }
 .timer__display { font-variant-numeric: tabular-nums; font-size: 3rem; text-align:center; margin:12px 0; letter-spacing:.02em; }
 .timer__actions { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
 .tm-pill { padding:8px 12px; border-radius:999px; border:1px solid #e5e7eb; background:#fff; cursor:pointer; }
+.tm-pill:hover { background: rgba(17,24,39,0.035); }
 .tm-primary { background:#1f2937; color:#fff; border-color:#1f2937; }
+.tm-primary:hover { background: rgba(0, 0, 0, 0.732); }
 
 /* Responsive */
 @media (max-width: 820px) {
