@@ -93,3 +93,13 @@ body{ background:var(--app-bg); color:var(--text-color); font-size:var(--base-fo
 /* DnD feedback */
 .task.dragging{ opacity:.6; transform:scale(.98); box-shadow:0 8px 20px rgba(16,24,40,0.08); }
 .task.drag-over{ border-color:#93c5fd; box-shadow: inset 0 0 0 2px rgba(59,130,246,0.06); }
+
+.task-btn {
+  padding: 8px 8px;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  cursor: pointer;
+}
+.task-btn:active { transform: translateY(1px); }
+.task-btn:hover { background: rgba(17,24,39,0.035); }

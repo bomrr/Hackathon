@@ -370,7 +370,7 @@ export function Task({
                 ) : null}
               </div>
               <div className="task-actions">
-                <button onClick={() => { setEditing(true); setEditName(name); setEditDetails(details); }}>Edit</button>
+                <button className="task-btn" onClick={() => { setEditing(true); setEditName(name); setEditDetails(details); }}>Edit</button>
               </div>
             </>
           ) : (
@@ -399,8 +399,8 @@ export function Task({
                 <label>Est (min): <input type="number" min="0" value={editEstimated} onChange={(e) => setEditEstimated(e.target.value)} /></label>
               </div>
               <div className="task-edit-actions">
-                <button onClick={handleSave}>Save</button>
-                <button onClick={() => setEditing(false)}>Cancel</button>
+                <button className="task-btn" onClick={handleSave}>Save</button>
+                <button className="task-btn" onClick={() => setEditing(false)}>Cancel</button>
               </div>
             </div>
           )}
