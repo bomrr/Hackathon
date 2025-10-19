@@ -75,9 +75,8 @@
   align-items: start;
 }
 
-/* Make every direct child a vertical stack:
-   label (field-label) + control aligned uniformly */
-.add-advanced > div {
+/* Make every direct child a vertical stack **except** the chips row */
+.add-advanced > div:not(.add-chips) {
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -132,6 +131,8 @@
   background: #fff;
   font-size: 13px;
   cursor: pointer;
+  white-space: nowrap;      /* keep labels tidy */
+  line-height: 1.2;         /* match pill height cross-browser */
 }
 .chip:active { transform: translateY(1px); }
 
@@ -214,7 +215,7 @@
   background:#f9fafb;
 }
 
-/* ---- Timer visuals (from previous step) ---- */
+/* ---- Timer visuals ---- */
 .timer { margin-top: 8px; }
 .timer__bar { height:8px; background:#eef2f7; border-radius:999px; overflow:hidden; margin:8px auto 0; max-width:680px; }
 .timer__bar-fill { height:100%; background:#3b82f6; border-radius:999px; transition:width .2s ease; }
