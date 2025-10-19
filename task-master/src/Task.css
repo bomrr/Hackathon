@@ -80,6 +80,7 @@ body{ background:var(--app-bg); color:var(--text-color); font-size:var(--base-fo
   background:#ef4444; color:#fff; border:none; padding:6px 10px; border-radius:8px; cursor:pointer;
   min-width:36px; display:inline-flex; align-items:center; justify-content:center;
 }
+.task-delete:hover { background: #ad2626; }
 
 /* details */
 .task-details{ margin-top:8px; padding-top:8px; border-top:1px dashed #eef2f7; color:#374151; }
