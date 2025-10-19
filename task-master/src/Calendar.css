@@ -34,3 +34,4 @@
   background: #fff;
   cursor: pointer;
 }
+.calendar .button:hover { background: rgba(17,24,39,0.035); }
