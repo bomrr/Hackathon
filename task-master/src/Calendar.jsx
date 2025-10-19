@@ -122,7 +122,7 @@ export function Calendar({ tasks = [], onTaskClick = () => {} }) {
       <div className="header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>Calendar — {now.toLocaleString(undefined, { month: 'long', year: 'numeric' })}</div>
         <div>
-          <button onClick={exportIcs} style={{ marginLeft: 8 }}>Export .ics</button>
+          <button onClick={exportIcs} className="button" style={{ marginLeft: 8 }}>Export .ics</button>
         </div>
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)" }}>
