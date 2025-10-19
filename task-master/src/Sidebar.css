@@ -18,11 +18,13 @@
 	max-height: 100%;
 }
 
-form {
+/* Scoped so it does NOT affect the Add Task form elsewhere */
+.sidebar form {
 	display: flex;
 	gap: 8px;
 	margin-top: 8px;
     margin-bottom : 50px;
 }
+
 .sidebar-actions button { display: block; width: 100%; margin-bottom: 8px; padding: 8px; border-radius: 6px; border: 1px solid #d1d5db; background: white; }
 .muted { color: #6b7280; font-size: 13px; }

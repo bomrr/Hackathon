@@ -26,9 +26,9 @@ export function Sidebar({ open, onClose }) {
     setLoading(true);
     setInput("");
     try {
-      const res = await fetch('/gemini-chat', {
+      const res = await fetch('http://localhost:5000/gemini-chat', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', "Access-Control-Allow-Origin":"*" },
         body: JSON.stringify({ prompt: input })
       });
       const data = await res.json();

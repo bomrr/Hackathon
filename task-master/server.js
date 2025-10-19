@@ -1,10 +1,12 @@
 require('dotenv').config();
 const express = require('express');
-const fetch = require('node-fetch');
+const fetch = require('node-fetch').default;
 const cors = require('cors');
 
 const app = express();
-app.use(cors());
+app.use(cors(
+  {origin:"http://localhost:3000"}
+));
 app.use(express.json());
 
 app.post('/gemini-chat', async (req, res) => {
